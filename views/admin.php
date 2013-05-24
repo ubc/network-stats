@@ -31,7 +31,6 @@ include_once(NETWORKSTATS_PATH.'lib/class.network-stats-'.NetworkStats::$view.'-
 	</h3>
 	
 	<?php 
-		echo NetworkStats::$view;
 		require_once(NETWORKSTATS_PATH .'views/'.NetworkStats::$view.'.php');
 	?>
 </div>
