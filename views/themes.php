@@ -17,15 +17,14 @@
 	<p>Last updated <em><?php echo $theme_data_object->updated_since(); ?></em></p>
 	
 	
-	<script>
-	console.log( jQuery );
+	<script type="">
+	
 	
 	jQuery.ajax({
 		dataType: "json",
 		url: '<?php echo $url; ?>',
 		success: function(data){
 			console.log(data);
-			
 		}
 		});
 	</script>
