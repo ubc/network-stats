@@ -28,13 +28,14 @@
 if ( ! defined( 'WPINC' ) ) {
 	die;
 }
-
-define( 'NETWORKSTATS_PATH', plugin_dir_path(__FILE__) );
-// TODO: replace `class-plugin-name.php` with the name of the actual plugin's class file
+if( !defined('NETWORKSTATS_PATH') )
+	define( 'NETWORKSTATS_PATH', plugin_dir_path(__FILE__) );
+	
+if( !defined('NETWORKSTATS_URL') )
+	define( 'NETWORKSTATS_URL', plugin_dir_url(__FILE__) );
 require_once( plugin_dir_path( __FILE__ ) . 'lib/class.network-stats.php' );
 
 // Register hooks that are fired when the plugin is activated, deactivated, and uninstalled, respectively.
-// TODO: replace NetworkStats with the name of the plugin defined in `class-plugin-name.php`
 register_activation_hook( __FILE__, array( 'NetworkStats', 'activate' ) );
 register_deactivation_hook( __FILE__, array( 'NetworkStats', 'deactivate' ) );
 
