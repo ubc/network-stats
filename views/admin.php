@@ -11,17 +11,27 @@
 * @link http://example.com
 * @copyright 2013 Your Name or Company Name
 */
+
+include_once(NETWORKSTATS_PATH.'lib/class.network-stats-data.php');
+include_once(NETWORKSTATS_PATH.'lib/class.network-stats-'.NetworkStats::$view.'-data.php');
 ?>
 <div class="wrap">
 
-<?php screen_icon(); ?>
 <h2><?php echo esc_html( get_admin_page_title() ); ?></h2>
 
 <!-- TODO: Provide markup for your options page here. -->
-	<h2 class="nav-tab-wrapper">
-	<a href="#" class="nav-tab nav-tab-active">Sites</a>
-	<a href="#" class="nav-tab ">Users</a>
-	<a href="#" class="nav-tab">Plugins</a>
-	<a href="#" class="nav-tab">Themes</a>
-</h2>
+	<h3 class="nav-tab-wrapper">
+		<?php 
+		foreach( NetworkStats::$tabs as $tab ):
+			
+			NetworkStats::create_tab($tab);
+		endforeach;
+		
+	?>
+	</h3>
+	
+	<?php 
+		echo NetworkStats::$view;
+		require_once(NETWORKSTATS_PATH .'views/'.NetworkStats::$view.'.php');
+	?>
 </div>

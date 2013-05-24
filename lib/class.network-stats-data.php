@@ -3,7 +3,7 @@
 
 
 
-class Make_JSON {
+class Network_Stats_Data {
 
 	protected $name = null;
 	protected $file_name = null;
@@ -13,11 +13,11 @@ class Make_JSON {
 	protected $path_to;
 	
 	
-	private function __construct( $name ) {
+	function __construct( $name ) {
 		
 		$this->name = sanitize_title($name);	
 		$this->file_name = $this->name.'json.js';
-		$this->setting = 'network-last-updated-'.$this->name
+		$this->setting = 'network-last-updated-'.$this->name;
 		$this->path_to = NETWORKSTATS_PATH.'json/';
 	}
 	
@@ -29,15 +29,16 @@ class Make_JSON {
 	 * @return void
 	 */
 	function update( $data = null) {
-		
+		// echo 'hello';
+		/*
 		if( !empty($data) ){
 			$data = $this->data;
 		}
-		
-		$this->update_file( $data );
+		*/
+		//$this->update_file( $data );
 		
 		// update the date setting so know when it was last created
-		update_site_option( $this->setting, time() );
+		//update_site_option( $this->setting, time() );
 	}
 	
 	function append_to_data( $more_data ){

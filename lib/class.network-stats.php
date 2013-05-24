@@ -57,14 +57,20 @@ class NetworkStats {
 	 * @var      string
 	 */
 	protected $plugin_screen_hook_suffix = null;
-
+	
+	static $view = 'sites';
+	static $tabs = array( 'sites', 'users', 'plugins', 'themes'); 
+	
 	/**
 	 * Initialize the plugin by setting localization, filters, and administration functions.
 	 *
 	 * @since     1.0.0
 	 */
 	private function __construct() {
-
+		
+		if( isset( $_GET['view'] ) && in_array( $_GET['view'], self::$tabs) ){
+			self::$view = $_GET['view'];
+		}
 		// Load plugin text domain
 		add_action( 'init', array( $this, 'load_plugin_textdomain' ) );
 
@@ -101,7 +107,16 @@ class NetworkStats {
 
 		return self::$instance;
 	}
-
+	
+	public static function create_tab( $name ){
+		
+		echo '<a href="'.esc_url( network_admin_url('admin.php?page=network-stats&view='.$name ) ).'" class="nav-tab ';
+		if( $name == self::$view ) { echo "nav-tab-active"; }
+		
+		echo '">'.ucwords( $name ).'</a>';
+	}
+	
+	
 	/**
 	 * Fired when the plugin is activated.
 	 *
