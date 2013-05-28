@@ -1,1 +1,1 @@
-# changelog #
+# changelog #may 28, 2013: added a get function to class.network-stats-data.php to grab the contents of the JSON file

@@ -45,7 +45,7 @@ class Network_Stats_Data {
 	 * @param mixed $data
 	 * @return void
 	 */
-	function update( $data = null) {
+	function update( $data = null ) {
 		// echo 'hello';
 		
 		if( empty( $data ) ){
@@ -99,13 +99,24 @@ class Network_Stats_Data {
 	
 	/**
 	 * get function.
-	 *
+	 * 
 	 * @access public
 	 * @param mixed $data
 	 * @return void
 	 */
 	function get() {
 		
+		$json = json_decode( file_get_contents( $this->path_to . $this->file_name ) );
+		if( isset( $json ) ) {
+
+			return $json;
+
+		}
+		else {
+
+			return $this->error[] = "Problem retrieving the data file";
+
+		}
 		
 	}
 	
