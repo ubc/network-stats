@@ -1,1 +1,1 @@
-# changelog #may 28, 2013: added a get function to class.network-stats-data.php to grab the contents of the JSON file
+# changelog #may 29, 2013: corrected the get function in class.network-stats-data.php to return the json decoded string as an associative array              plugins section now shows a table containing the sites and the plugins that they usemay 28, 2013: added a get function to class.network-stats-data.php to grab the contents of the JSON file

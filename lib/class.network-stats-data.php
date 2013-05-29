@@ -106,7 +106,7 @@ class Network_Stats_Data {
 	 */
 	function get() {
 		
-		$json = json_decode( file_get_contents( $this->path_to . $this->file_name ) );
+		$json = json_decode( file_get_contents( $this->path_to . $this->file_name ), TRUE );	// decode the JSON into an associative array with second parameter
 		if( isset( $json ) ) {
 
 			return $json;
