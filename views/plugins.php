@@ -16,21 +16,23 @@ $total_plugins_num = $plugin_data_object->report_plugins_total();
 <p><b>Total number of plugins available: </b><em><?php echo $total_plugins_num ?></em></p>
 
 <h2>Total Plugin Usage</h2>
-<?php  //$plugin_data_object->report_plugins_usage( $json_data ); ?>
+<?php $table_array = $plugin_data_object->generate_plugins_table( $json_data ); ?>
 <table border="1">
 	<tr>
-		<th>Site URL</th>
-		<th>Plugins</th>
+		<th>Plugin Name</th>
+		<th>Number of Sites</th>
+		<th>User/Network Enabled</th>
+		<th>List of Sites</th>
 	</tr>
 	<?php
-		foreach( $json_data as $item ) {
-	?>
-			<tr>
-				<td><?php echo $plugin_data_object->report_sites_plugins( $item['site_url'] ); ?></td>
-				<td><?php echo $plugin_data_object->report_sites_plugins( $item['plugins'] ); ?></td>
-			</tr>
-	<?php
-		}
+	foreach( $table_array as $row ) {
+		echo '<tr>';
+			echo '<td>' . $row['name'] . '</td>';
+			echo '<td>' . $row['num_sites'] . '</td>';
+			echo '<td>' . $row['user_network'] . '</td>';
+			echo '<td>' . $row['sites'] . '</td>';
+		echo '</tr>';
+	}
 	?>
 </table>
 

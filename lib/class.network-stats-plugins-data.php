@@ -52,26 +52,65 @@ class Network_Stats_Plugins_Data extends Network_Stats_Data {
 	}
 
 	/**
-	 * report_plugins_usage function
-	 * This function counts the total usage of each plugin
+	 * generate_plugins_table function
+	 * This function generates an associative array containing all of the 
+	 * relevant information needed for the plugin table
 	 * @access public
-	 * @return
+	 * @return $plugins_data
 	 */
-	function report_plugins_usage( $decoded_json ) {
-
-		//var_dump( $decoded_json );
-		foreach( $decoded_json as $key => $value ) {
-
-			var_dump( $decoded_json[$key]["plugins"] );
-
+	function generate_plugins_table( $decoded_json ) {
+		//var_dump( $this->total_plugins );
+		foreach( $this->total_plugins as $plugin_key => $plugin_value ) {
+			$plugins_data[] = array(
+				'name' => $plugin_value['Name'],
+				'num_sites' => $this->get_num_sites( $plugin_key, $decoded_json ),
+				'user_network' => is_plugin_active_for_network( $plugin_key ) ? "Network Activated" : "User Activated",
+				'sites' => 'swag'
+			);
+			//echo $plugin_key . '<br/>';
 		}
+		//var_dump( $plugins_data );
+		return $plugins_data;
 
 	}
 
 	/**
+	 * get_num_sites function
+	 * This funciton counts the number of times $plugin_key appears in $json_data
+	 * @param $plugin_key, 
+	 * @access public
+	 * @return $num_sites
+	 */
+	function get_num_sites( $plugin_key, $json_data ) {
+		/*$counts = array();	// this array will contain the count for each plugin
+		$plugin_count = 0;
+		var_dump( $this->total_plugins );
+		foreach( $decoded_json as $key => $sub_arr ) {
+			// add to the current group count if it exists
+			/*if( isset( $counts[$key['plugins']] ) ) {
+				$counts[$key['plugins']]++;
+			}
+			else {
+				$counts[$key['plugins']] = 1;
+			}
+			var_dump ($sub_arr['plugins']);
+			echo '<br/><br/>';
+		}
+		//var_dump( $counts );
+		//return $counts;*/
+
+		$num_sites = 0;
+		foreach ( $json_data as $key => $sub_arr ) {
+			if( in_array( $plugin_key, $sub_arr['plugins'] ) ) {
+				$num_sites++;
+			}
+		}
+		return $num_sites;
+	}
+
+	/**
 	 * report_sites_plugins function
-	 * This function returns a list of the contents of an array if the parameter passed
-	 * is an array otherwise it will just return whatever is passed in (kinda redundant there will fix later)
+	 * This function will create a list of websites that are using the plugin
 	 * @access public
 	 * @param $plugins_array
 	 * @return $list or $plugins_array
