@@ -185,6 +185,8 @@ class NetworkStats {
 		if ( ! isset( $this->plugin_screen_hook_suffix ) ) {
 			return;
 		}
+		// Find a better way to enqueue this
+		wp_enqueue_script( $this->plugin_slug . '-d3-v3-js', plugins_url( '/js/d3.v3/d3.v3.min.js', dirname( __FILE__ ) ), array( 'jquery' ), $this->version );
 
 		$screen = get_current_screen();
 		if ( $screen->id == $this->plugin_screen_hook_suffix ) {
