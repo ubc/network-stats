@@ -13,6 +13,12 @@ class Network_Stats_Plugins_Data extends Network_Stats_Data {
 		$this->start();
 	}
 
+	/**
+	 * fetch_latest_data funciton
+	 * This funciton will create/update the JSON file associated with the current view
+	 * @access public
+	 * @return void
+	 */
 	function fetch_latest_data() {
 		
 		global $wpdb;
@@ -43,7 +49,7 @@ class Network_Stats_Plugins_Data extends Network_Stats_Data {
 	 * report_plugins_total function
 	 * This function will return the total number of plugins in the system
 	 * @access public
-	 * @return count( $this->total_plugins )
+	 * @return int
 	 */
 	function report_plugins_total() {
 		
@@ -56,16 +62,17 @@ class Network_Stats_Plugins_Data extends Network_Stats_Data {
 	 * This function generates an associative array containing all of the 
 	 * relevant information needed for the plugin table
 	 * @access public
-	 * @return $plugins_data
+	 * @return array
 	 */
 	function generate_plugins_table( $decoded_json ) {
 		//var_dump( $this->total_plugins );
 		foreach( $this->total_plugins as $plugin_key => $plugin_value ) {
+			$site_list = $this->report_sites_plugins( $plugin_key, $decoded_json );
 			$plugins_data[] = array(
 				'name' => $plugin_value['Name'],
 				'num_sites' => $this->get_num_sites( $plugin_key, $decoded_json ),
 				'user_network' => is_plugin_active_for_network( $plugin_key ) ? "Network Activated" : "User Activated",
-				'sites' => 'swag'
+				'sites' => empty( $site_list ) ? array("None") : $site_list 
 			);
 			//echo $plugin_key . '<br/>';
 		}
@@ -77,30 +84,15 @@ class Network_Stats_Plugins_Data extends Network_Stats_Data {
 	/**
 	 * get_num_sites function
 	 * This funciton counts the number of times $plugin_key appears in $json_data
-	 * @param $plugin_key, 
+	 * @param $plugin_key array
+	 * @param $json_data array
 	 * @access public
-	 * @return $num_sites
+	 * @return null|array
 	 */
 	function get_num_sites( $plugin_key, $json_data ) {
-		/*$counts = array();	// this array will contain the count for each plugin
-		$plugin_count = 0;
-		var_dump( $this->total_plugins );
-		foreach( $decoded_json as $key => $sub_arr ) {
-			// add to the current group count if it exists
-			/*if( isset( $counts[$key['plugins']] ) ) {
-				$counts[$key['plugins']]++;
-			}
-			else {
-				$counts[$key['plugins']] = 1;
-			}
-			var_dump ($sub_arr['plugins']);
-			echo '<br/><br/>';
-		}
-		//var_dump( $counts );
-		//return $counts;*/
 
 		$num_sites = 0;
-		foreach ( $json_data as $key => $sub_arr ) {
+		foreach( $json_data as $key => $sub_arr ) {
 			if( in_array( $plugin_key, $sub_arr['plugins'] ) ) {
 				$num_sites++;
 			}
@@ -110,23 +102,19 @@ class Network_Stats_Plugins_Data extends Network_Stats_Data {
 
 	/**
 	 * report_sites_plugins function
-	 * This function will create a list of websites that are using the plugin
+	 * This function will return a list of websites that are using the plugin
 	 * @access public
 	 * @param $plugins_array
-	 * @return $list or $plugins_array
+	 * @return $site_list
 	 */
-	function report_sites_plugins( $plugins_array ) {
+	function report_sites_plugins( $plugin_key, $json_data ) {
 
-		if( is_array( $plugins_array ) ) {
-			$list = '<ul>';
-			foreach( $plugins_array as $plugin ) {
-				$list .= '<li>' . $plugin . '</li>';
+		foreach( $json_data as $key => $sub_arr ) {
+			if( in_array( $plugin_key, $sub_arr['plugins'] ) ) {
+				$site_list[] = $sub_arr['site_url'];
 			}
-
-			$list .= '</ul>';
-			return $list;
 		}
-		
-		return $plugins_array;
+		//var_dump( $site_list );
+		return $site_list;
 	}
 } 
