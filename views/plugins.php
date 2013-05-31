@@ -18,7 +18,6 @@ $table_array = $plugin_data_object->generate_plugins_table( $json_data );
 
 <p><b>Total number of plugins available: </b><em><?php echo $total_plugins_num ?></em></p>
 
-<h2>Plugins Pie Chart</h2>
 <script>
 	/*var dataset = <?php echo json_encode( $table_array ); ?>	// dataset to be used by the pie chart
 	var dataset_dict = {};
