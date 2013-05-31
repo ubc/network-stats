@@ -86,10 +86,10 @@ class Network_Stats_Plugins_Data extends Network_Stats_Data {
 	 * This funciton counts the number of times $plugin_key appears in $json_data
 	 * @param $plugin_key array
 	 * @param $json_data array
-	 * @access public
+	 * @access private
 	 * @return null|array
 	 */
-	function get_num_sites( $plugin_key, $json_data ) {
+	private function get_num_sites( $plugin_key, $json_data ) {
 
 		$num_sites = 0;
 		foreach( $json_data as $key => $sub_arr ) {
@@ -103,11 +103,11 @@ class Network_Stats_Plugins_Data extends Network_Stats_Data {
 	/**
 	 * report_sites_plugins function
 	 * This function will return a list of websites that are using the plugin
-	 * @access public
+	 * @access private
 	 * @param $plugins_array
 	 * @return $site_list
 	 */
-	function report_sites_plugins( $plugin_key, $json_data ) {
+	private function report_sites_plugins( $plugin_key, $json_data ) {
 
 		foreach( $json_data as $key => $sub_arr ) {
 			if( in_array( $plugin_key, $sub_arr['plugins'] ) ) {
