@@ -15,17 +15,12 @@ $total_plugins_num = $plugin_data_object->report_plugins_total();
 $table_array = $plugin_data_object->generate_plugins_table( $json_data );
 //echo json_encode( $table_array );
 ?>
-<style>
-.arc path {
-	stroke: #fff;
-}
-</style>
+
 <p><b>Total number of plugins available: </b><em><?php echo $total_plugins_num ?></em></p>
 
 <h2>Plugins Pie Chart</h2>
-<div id="d3-example"></div>
 <script>
-	var dataset = <?php echo json_encode( $table_array ); ?>	// dataset to be used by the pie chart
+	/*var dataset = <?php echo json_encode( $table_array ); ?>	// dataset to be used by the pie chart
 	var dataset_dict = {};
 
 	for(var i = dataset.length - 1; i >= 0; i--) {
@@ -38,26 +33,7 @@ $table_array = $plugin_data_object->generate_plugins_table( $json_data );
 		if( dataset_dict.hasOwnProperty(key) ) {
 			console.log("name: " + key + ", num_sites: " + dataset_dict[key]);
 		}
-	}
-
-	/*d3.select("#d3-example")
-		.append("table")
-		.style("border-collapse", "collapse")
-		.style("border", "2px black solid")
-	
-		.selectAll("tr")
-		.data(dataset)
-		.enter().append("tr")
-
-		.selectAll("td")
-		.data(function(d) {return d;})
-		.enter().append("td")
-		.style("border", "1px black solid")
-		.style("padding", "10px")
-		.on("mouseover", function() {d3.select(this).style("background-color", "aliceblue")})
-		.on("mouseout", function() {d3.select(this).style("background-color", "white")})
-		.text(function(d) {return d;})
-		.style("font-size", "12px")*/
+	}*/
 </script>
 <h2>Plugins Usage Table</h2>
 <table border="1">
