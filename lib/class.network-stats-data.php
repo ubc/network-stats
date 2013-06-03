@@ -127,8 +127,11 @@ class Network_Stats_Data {
 	 * @return void
 	 */
 	function updated_since(){
-	
-		return $this->time_elapsed( time() - get_site_option( $this->setting ) ); 
+		$last = get_site_option( $this->setting );
+		if($last)
+			return $this->time_elapsed( time() - $last ); 
+		else
+			return false;
 	}
 	
 	/**
@@ -174,8 +177,6 @@ class Network_Stats_Data {
 			return false;
 		
 	}
-	
-
 
 }
 

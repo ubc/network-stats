@@ -17,14 +17,15 @@ include_once(NETWORKSTATS_PATH.'lib/class.network-stats-'.NetworkStats::$view.'-
 ?>
 <div class="wrap">
 
-<h2><?php echo esc_html( get_admin_page_title() ); ?></h2>
+<h2><?php echo esc_html( get_admin_page_title() ); ?> <div id="update-shell"></div></h2>
 
 <!-- TODO: Provide markup for your options page here. -->
 	<h3 class="nav-tab-wrapper">
 		<?php 
 		foreach( NetworkStats::$tabs as $tab ):
 			
-			NetworkStats::create_tab($tab);
+			NetworkStats::create_tab( $tab );
+			
 		endforeach;
 		
 	?>
