@@ -9,10 +9,10 @@ if( empty( $url ) ) {
 
 }
 
-$json_data = $plugin_data_object->get();
+$plugins_json_data = $plugin_data_object->get();
 
 $total_plugins_num = $plugin_data_object->report_plugins_total();
-$table_array = $plugin_data_object->generate_plugins_table( $json_data );
+$table_array = $plugin_data_object->generate_plugins_table( $plugins_json_data );
 //echo json_encode( $table_array );
 ?>
 
