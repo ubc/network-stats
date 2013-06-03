@@ -49,14 +49,18 @@ class Network_Stats_Users_Data extends Network_Stats_Data {
 	 */
 	function generate_users_data( $decoded_json ) {
 		foreach( $decoded_json as $key => $sub_arr ) {
-			$users = $this->grab_users_data($sub_arr['users']);
+			$users = $this->grab_users_data( $sub_arr['users'] );
 			//print_r( $users );
 			//echo '<hr/>';
 			$filtered_data[] = array(
 				'data' => $users,
+				'site_id' => $sub_arr['site_id'],
 				'site_url' => $sub_arr['site_url']
 			);
+
 		}
+		//print_r( $filtered_data );
+		return $filtered_data;
 	}
 
 	/**
@@ -73,11 +77,8 @@ class Network_Stats_Users_Data extends Network_Stats_Data {
 				'role' => $value['roles'][0],
 				'registered' => $value['data']['user_registered']
 			);
-			/*echo "email: " . $value['data']['user_email'] . "<br/>";
-			echo "registered: " . $value['data']['user_registered'] . "<br/>"; 
-			echo "role: " . $value['roles'][0] . "<br/>";
-			echo '<br/><br/>'; */
 		}
+		//print_r($grabbed_data);
 		return $grabbed_data;
 	}
 }
