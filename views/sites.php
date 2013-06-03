@@ -6,6 +6,8 @@
 	$url = $data_object->get_url();
 	
 	
+	//$data_object->fetch_latest_data();
+	
 	if( empty( $url ) ) { ?>
 		<script type="">
 			var data = {

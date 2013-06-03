@@ -5,13 +5,6 @@
  * A foundation off of which to build well-documented WordPress plugins that also follow
  * WordPress coding standards and PHP best practices.
  *
- * @package   Network Stats
- * @author    Your Name <email@example.com>
- * @license   GPL-2.0+
- * @link      http://example.com
- * @copyright 2013 Your Name or Company Name
- *
- * @wordpress-plugin
  * Plugin Name: Network Stats
  * Plugin URI:  github.com/ubc/network-stats
  * Description: Fun
