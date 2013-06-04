@@ -3,6 +3,8 @@
  *	Network Stats Users Data class file
  */
 
+add_action( 'wp_ajax_network_stats_users_data', array( 'Network_Sites_Users_Data', 'fetch_latest_data' ) );
+
 class Network_Stats_Users_Data extends Network_Stats_Data {
 
 	function __construct( $name = 'users') {
@@ -18,20 +20,36 @@ class Network_Stats_Users_Data extends Network_Stats_Data {
 	 */
 	function fetch_latest_data() {
 
-		global $wpdb;
+		//global $wpdb;
 
-		$blogs = $wpdb->get_results( "SELECT blog_id, domain, path FROM $wpdb->blogs ORDER BY domain ASC" );
+		//$blogs = $wpdb->get_results( "SELECT blog_id, domain, path FROM $wpdb->blogs ORDER BY domain ASC" );
+		$args = array(
+			'blog_id'	=> null,
+			'orderby'	=> 'ID'
+		);
+		$users = get_users( $args );
+		//print_r( $users );
 
-		if( $blogs ) {
+		if( $users ) {
 
-			foreach( $blogs as $blog ) {
-				$blog_users = get_users( 'blog_id=' . $blog->blog_id );	// generates an array of users for each blog
+			foreach( $users as $user ) {
+
+				$user_blogs = get_blogs_of_user( $user->ID );	// get a list of sites that the user belongs to
+				if( $user_all_meta = get_user_meta( $user->ID ) ) {
+					$user_all_meta = array_map( function( $a ) { return $a[0]; }, get_user_meta( $user->ID ) );
+					// source: http://codex.wordpress.org/Function_Reference/get_user_meta
+					// use the array mapping to get only the first index of each result
+					// necessary because by default, the function will return an array that needs to be derefenced to grab the values
+				}
 
 				$this->append_to_data( array(
-					'users'		=> $blog_users,
-					'site_id'	=> $blog->blog_id,
-					'site_url' 	=> 'http://' . $blog->domain . $blog->path
+					'user_id'		=> $user->ID,
+					'name'			=> $user_all_meta['first_name'] . ' ' . $user_all_meta['last_name'],
+					'user_email'	=> $user->user_email,
+					'registered'	=> $user->user_registered,
+					'sites_array'	=> $user_blogs					
 				) );
+
 			}
 
 		}
