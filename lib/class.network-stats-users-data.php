@@ -46,6 +46,7 @@ class Network_Stats_Users_Data extends Network_Stats_Data {
 					'user_id'		=> $user->ID,
 					'name'			=> $user_all_meta['first_name'] . ' ' . $user_all_meta['last_name'],
 					'user_email'	=> $user->user_email,
+					'role'			=> $user->roles,
 					'registered'	=> $user->user_registered,
 					'sites_array'	=> $user_blogs					
 				) );
