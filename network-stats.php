@@ -32,5 +32,4 @@ require_once( plugin_dir_path( __FILE__ ) . 'lib/class.network-stats.php' );
 register_activation_hook( __FILE__, array( 'NetworkStats', 'activate' ) );
 register_deactivation_hook( __FILE__, array( 'NetworkStats', 'deactivate' ) );
 
-// TODO: replace NetworkStats with the name of the plugin defined in `class-plugin-name.php`
 NetworkStats::get_instance();

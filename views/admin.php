@@ -12,8 +12,7 @@
 * @copyright 2013 Your Name or Company Name
 */
 
-include_once(NETWORKSTATS_PATH.'lib/class.network-stats-data.php');
-include_once(NETWORKSTATS_PATH.'lib/class.network-stats-'.NetworkStats::$view.'-data.php');
+
 ?>
 <div class="wrap">
 

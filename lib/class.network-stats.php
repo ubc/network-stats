@@ -80,15 +80,8 @@ class NetworkStats {
 		// Load admin style sheet and JavaScript.
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_styles' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
-
-		// Load public-facing style sheet and JavaScript.
-		// add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_styles' ) );
-		// add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
-
-		// Define custom functionality. Read more about actions and filters: http://codex.wordpress.org/Plugin_API#Hooks.2C_Actions_and_Filters
-		add_action( 'TODO', array( $this, 'action_method_name' ) );
-		add_filter( 'TODO', array( $this, 'filter_method_name' ) );
-
+		
+		add_action( 'wp_ajax_network_stats', array( $this, 'do_ajax' ) );
 	}
 
 	/**
@@ -167,8 +160,9 @@ class NetworkStats {
 		}
 
 		$screen = get_current_screen();
-		if ( $screen->id == $this->plugin_screen_hook_suffix ) {
-			wp_enqueue_style( $this->plugin_slug .'-admin-styles', plugins_url( 'css/admin.css', __FILE__ ), $this->version );
+		
+		if ( $screen->id == $this->plugin_screen_hook_suffix."-network" ) {
+			wp_enqueue_style( $this->plugin_slug .'-admin-styles', NETWORKSTATS_URL. 'css/admin.css', $this->version );
 		}
 
 	}
@@ -186,11 +180,16 @@ class NetworkStats {
 			return;
 		}
 		// Find a better way to enqueue this
-		wp_enqueue_script( $this->plugin_slug . '-d3-v3-js', plugins_url( '/js/d3.v3/d3.v3.min.js', dirname( __FILE__ ) ), array( 'jquery' ), $this->version );
-
+		wp_register_script( 'd3js', NETWORKSTATS_URL . '/js/d3.v3/d3.v3.min.js', array(), 3 );
+		wp_register_script( 'crossfilter', NETWORKSTATS_URL . '/js/crossfilter/crossfilter.v1.min.js', array('d3js'), 3 );
+		wp_register_script( 'network-helper', NETWORKSTATS_URL . '/js/'.self::$view.'.js', array(), 3 );
+		
+		
 		$screen = get_current_screen();
-		if ( $screen->id == $this->plugin_screen_hook_suffix ) {
-			wp_enqueue_script( $this->plugin_slug . '-admin-script', plugins_url( 'js/admin.js', __FILE__ ), array( 'jquery' ), $this->version );
+		
+		if ( $screen->id == $this->plugin_screen_hook_suffix."-network" ) {
+			
+			wp_enqueue_script( $this->plugin_slug . '-admin-script', NETWORKSTATS_URL. 'js/admin.js', array( 'jquery', 'crossfilter','d3js', 'network-helper','underscore' ), $this->version, true );
 		}
 
 	}
@@ -243,7 +242,33 @@ class NetworkStats {
 	 * @since    1.0.0
 	 */
 	public function display_plugin_admin_page() {
+		$this->load_classes();
 		include_once( NETWORKSTATS_PATH.'views/admin.php' );
+	}
+	
+	function load_classes( $type = null ) {
+		if( !$type )
+			$type = NetworkStats::$view;
+		//	
+		include(NETWORKSTATS_PATH.'lib/class.network-stats-data.php');
+		include(NETWORKSTATS_PATH.'lib/class.network-stats-'.$type.'-data.php');
+	
+	}
+	
+	function do_ajax() {
+		switch( $_REQUEST['do'] ) {
+		
+			case 'update_sites':
+				$this->load_classes( 'sites' );
+				
+				$data_object = new Network_Stats_Sites_Data();
+				echo json_encode( $data_object->fetch_latest_data( $_POST['page'] ) );
+				
+			break;
+			
+		
+		}
+		die();
 	}
 
 	/**

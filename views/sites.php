@@ -3,41 +3,25 @@
 
 	
 	$data_object = new Network_Stats_Sites_Data();
+	
 	$url = $data_object->get_url();
 	
-	
-	//$data_object->fetch_latest_data();
-	
 	if( empty( $url ) ) { ?>
-		<script type="">
-			var data = {
-				action: 'network_stats_site_data'
-			};
-			
-			
-			jQuery.post(ajaxurl, data, function(response) {
-				
-					alert('Got this from the server: ' + response);
-			});
-			
-		</script>
+		
 	<?php 
 	}
 	
 	?>
 	<p>Last updated <em><?php echo $data_object->updated_since(); ?></em></p>
 	
+	<div id="data">
+		
+	</div>
 	
-	<script type="">
-	
-	
-	jQuery.ajax({
-		dataType: "json",
-		url: '<?php echo $url; ?>',
-		success: function(data){
-			console.log(data);
-		}
-		});
+	<script>
+		var network_stats_refresh_data = <?php echo ( empty( $url ) ? 'true': 'false'); ?> 		
+		var network_stats_page = 'sites';
+		var json_url = '<?php echo $url; ?>';
 	</script>
 	
 

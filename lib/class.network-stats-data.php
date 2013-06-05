@@ -56,6 +56,21 @@ class Network_Stats_Data {
 		
 		// update the date setting so know when it was last created
 		update_site_option( $this->setting, time() );
+		
+		// lets delete the transient 
+		delete_site_transient( 'network_stats_'.$this->name );
+		
+	}
+	
+	
+	function temp_save($data = null){
+	
+		if( empty( $data ) ) {
+			$data = $this->data;
+		}
+		
+		set_site_transient( 'network_stats_'.$this->name, $data, 60 * 60 *2 ); // expire 
+	
 	}
 	
 	/**
@@ -97,6 +112,16 @@ class Network_Stats_Data {
 		
 	}
 	
+	/**
+	 * get_data function.
+	 * 
+	 * @access public
+	 * @return void
+	 */
+	function get_data() {
+		
+		$this->data = get_site_transient( 'network_stats_'.$this->name ); // expire 
+	}
 	/**
 	 * get function.
 	 * 
