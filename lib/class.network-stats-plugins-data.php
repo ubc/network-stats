@@ -19,11 +19,30 @@ class Network_Stats_Plugins_Data extends Network_Stats_Data {
 	 * @access public
 	 * @return void
 	 */
-	function fetch_latest_data() {
+	function fetch_latest_data( $page = 1 ) {
 		
 		global $wpdb;
+		$size = 5;
+		
+		
+		//get the latest data 
+		$this->get_data();
+		
+		$page = ( is_integer( (int)$page ) ? $page : 1);
+		
+		
+		$start_limit = ($page-1)*$size;
+		$finish_limit = $page*$size +1;
+		
+		
 
-		$blogs = $wpdb->get_results( "SELECT blog_id, domain, path FROM $wpdb->blogs ORDER BY domain ASC" );
+		$blogs = $wpdb->get_results( 
+				$wpdb->prepare( "SELECT blog_id, domain, path FROM $wpdb->blogs ORDER BY domain ASC LIMIT %d, %d", 
+				$start_limit,
+				$finish_limit
+				)
+			);
+
 				
 		if( $blogs ) {
 
@@ -41,7 +60,17 @@ class Network_Stats_Plugins_Data extends Network_Stats_Data {
 
 		}
 
-		$this->update();
+		if( count($blogs) > $size ){
+			$this->temp_save();
+			// lets get the next 5 items 
+			return array( 'next_page' => $page+1, 'data' => $this->data );
+			
+			
+		} else {
+			$this->update();
+			// we are done
+			return array( 'next_page' => 'finished', 'data' => $this->data);
+		}	
 
 	}
 

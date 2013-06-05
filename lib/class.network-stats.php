@@ -266,6 +266,14 @@ class NetworkStats {
 				
 			break;
 			
+			case 'update_plugins':
+				$this->load_classes( 'plugins' );
+				
+				$data_object = new Network_Stats_Plugins_Data();
+				echo json_encode( $data_object->fetch_latest_data( $_POST['page'] ) );
+				
+			break;
+			
 		
 		}
 		die();

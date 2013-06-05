@@ -33,6 +33,10 @@ jQuery( function($) {
 				NetStatsSites.draw();
 				
 			break;
+			case 'plugins':
+				NetStatsPlugins.draw();
+				
+			break;
 		}
 	 }
 	
