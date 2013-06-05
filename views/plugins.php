@@ -3,7 +3,7 @@
 $plugin_data_object = new Network_Stats_Plugins_Data();
 $url = $plugin_data_object->get_url();
 
-var_dump()
+//var_dump()
 /*
 $plugins_json_data = $plugin_data_object->get();
 

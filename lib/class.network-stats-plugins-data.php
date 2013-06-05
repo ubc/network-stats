@@ -67,6 +67,9 @@ class Network_Stats_Plugins_Data extends Network_Stats_Data {
 			
 			
 		} else {
+			// fix the $this->data to be more usefull
+
+			$this->data = $this->generate_plugins_table($this->data);
 			$this->update();
 			// we are done
 			return array( 'next_page' => 'finished', 'data' => $this->data);
