@@ -273,7 +273,14 @@ class NetworkStats {
 				echo json_encode( $data_object->fetch_latest_data( $_POST['page'] ) );
 				
 			break;
-			
+
+			case 'update_users':
+				$this->load_classes( 'users' );
+
+				$data_object = new Network_Stats_Users_Data();
+				echo json_encode( $data_object->fetch_latest_data( $_POST['page'] ) );
+				
+			break;
 		
 		}
 		die();

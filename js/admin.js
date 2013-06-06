@@ -37,6 +37,11 @@ jQuery( function($) {
 				NetStatsPlugins.draw();
 				
 			break;
+
+			case 'users':
+				NetStatsUsers.draw();
+				
+			break;
 		}
 	 }
 	
