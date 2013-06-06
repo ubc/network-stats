@@ -5,20 +5,15 @@ NetStatsPlugins = {
 		
 		
 		d3.json(json_url, function(error, data) {
-			
-			var all_plugins = _.chain(data).map( function(d){ return _.flatten( d.plugins ) }).flatten().uniq().value();
-			console.log(all_plugins);
-			var plugins = [];
-			
-			all_plugins.forEach( function(d){
-				
-			});
+			jQuery('#plugins-total').append('<strong>'+data.length+'</strong>')
+			var tbody = jQuery('#data-table tbody');
+			var i = 0;
 			data.forEach(function(d) {
-				
+				i++;
 				//var index = _.indexOf(d.plugins, )
 				//if( d.plugins
-					
-				// jQuery('#myTable').append('<tr><td>'+d.name+'</td><td>more data</td></tr>');
+				var alt = ( i%2 == 1 ? 'class="alternate"' : '');
+				tbody.append('<tr '+alt+'><td>'+d.name+'</td><td>'+d.num_sites+'</td><td>'+d.user_network+'</td><td>hello</td></tr>');
 			});
 			
 		});

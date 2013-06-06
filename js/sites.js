@@ -68,16 +68,16 @@ NetStatsSites = {
 		  x2.domain(x.domain());
 		  y2.domain(y.domain());
 		  
-		  /*
+		  
 		  svg.selectAll(".bar")
 		      .data(data)
 		      .enter().append("rect")
 		      .attr("class", "bar")
-		      .attr("x", function(d) { return d.registered; })
-		      .attr("width", 1)
+		      .attr("x", function(d) { return x(d.registered); })
+		      .attr("width", 10)
 		      .attr("y", function(d) { return y(d.site_id); })
 		      .attr("height", function(d) { return height - y(d.site_id); });
-		  */
+		  
 		 
 		  focus.append("path")
 		      .datum(data)

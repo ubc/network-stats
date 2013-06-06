@@ -40,3 +40,6 @@ path {
 .bar{
 	fill:steelblue;
 }
+h3 small{
+	font-weight: normal;
+}
