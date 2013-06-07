@@ -27,13 +27,13 @@ class Network_Stats_Users_Data extends Network_Stats_Data {
 
 		$page = ( is_integer( (int)$page ) ? $page : 1 );
 
-		$start_limit = ($page - 1) * $size;		// lower limit: will use for the offset
-		$finish_limit = $page * $size + 1;		// upper limit: will use for the number
+		$start_limit = ($page-1)*$size;		// lower limit: will use for the offset
+		$finish_limit = $page*$size +1;		// upper limit: will use for the number
 
 		$args = array(
 			'blog_id'	=> null,
 			'orderby'	=> 'ID',
-			'number'	=> $size,
+			'number'	=> $finish_limit,
 			'offset'	=> $start_limit
 		);	// offset and number is necessary for paging please see
 			// http://codex.wordpress.org/Class_Reference/WP_User_Query
@@ -41,8 +41,11 @@ class Network_Stats_Users_Data extends Network_Stats_Data {
 		$users = get_users( $args );
 
 		if( $users ) {
-
+			$i = 1;
 			foreach( $users as $user ) {
+
+				if( $i > $size )
+					break;
 
 				$user_blogs = get_blogs_of_user( $user->ID );	// get a list of sites that the user belongs to
 				if( $user_all_meta = get_user_meta( $user->ID ) ) {
@@ -60,7 +63,7 @@ class Network_Stats_Users_Data extends Network_Stats_Data {
 					'registered'	=> $user->user_registered,
 					'sites_array'	=> $user_blogs					
 				) );
-
+				$i++;
 			}
 
 		}
