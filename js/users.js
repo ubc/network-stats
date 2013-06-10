@@ -11,10 +11,23 @@ NetStatsUsers = {
 
 				tbody.append(	'<tr ' + alt + '><td>' + d.user_id + '</td><td>' + d.name + '</td><td>' + d.user_email + '</td><td>role goes here</td><td>' + d.registered + '</td><td>yolo sites</td></tr>');
 			});
+
+			// draw the bar graph
+			role_bar_graph(data);
 		});
 	}
 }
-/*var array_choose = ["administrator", "editor", "author", "contributor", "subscriber"];
+
+// div#user-activity
+
+// div#user-pie-chart
+
+// div#faculties-bar-graph
+
+// div#role-bar-graph
+function role_bar_graph(data) {
+
+var array_choose = ["administrator", "editor", "author", "contributor", "subscriber"];
 	var input_array = new Array();
 
 	function random_array_value(array) {
@@ -24,89 +37,71 @@ NetStatsUsers = {
 	for (var i =  1000; i > 0; i--) {
 		input_array.push(random_array_value(array_choose));
 	}
-	var dict = {
-		"administrator": 0,
-		"editor": 0,
-		"author": 0,
-		"contributor": 0,
-		"subscriber": 0
-	};
 
-	for (var i = input_array.length - 1; i >= 0; i--) {
-		// key = administrator, editor, author, contributor or subscriber
-		dict[input_array[i]]++;
-		//dict.num[dict.role.indexOf(input_array[i])]++;
-	}
+	var dict = new Array();
+	var temp = _.countBy(input_array, function(value) {
+		return value;
+	})
+	
+	_.each(temp, function(value, key) {
+		dict.push({role: key, count: value});
+	});
 
+	var bar_height = 20,
+		width = 600,
+		left_width = 100,	// offset for the left of the chart
+		height = bar_height * dict.length;
 
-	// test code from http://stackoverflow.com/questions/126100/how-to-efficiently-count-the-number-of-keys-properties-of-an-object-in-javascrip
-	var count = Object.keys(dict).length;	// get the number of elements in the Object
-	var max = Math.max.apply(null, Object.keys(dict).map(function(e) { return dict[e]; }));	// get the max value in the Object
-	var min = Math.min.apply(null, Object.keys(dict).map(function(e) { return dict[e]; }));	// get the min value in the Object
+	var gap = 2;	// defining a gap for padding between the bars
 
+	// create chart context here
 	var chart = d3.select("#role-bar-graph").append("svg")
-			.attr("class", "chart")
-			.attr("width", 500)
-			.attr("height", 1000)
-		.append("g")
-			.attr("transform", "translate(10, 15)");
+					.attr("class", "chart")
+					.attr("width", width + left_width + 40)
+					.attr("height", (bar_height + gap * 2) * dict.length + 30)
+				  .append("g")
+					.attr("transform", "translate(10, 20)");
 
+	// add scaling for the chart axes
 	var x = d3.scale.linear()
-		.domain([0, d3.max(d3.values(dict))])
-		.range([0, 450]);
+				.domain([0, d3.max(dict, function(d) { return d.count; })])
+				.range([0, width]);
 
 	var y = d3.scale.ordinal()
-		.domain(d3.values(dict))
-		.rangeBands([0, 20 * count]);
+				.domain(dict.map(function(d) { return d.role; }))
+				.rangeBands([0, (bar_height + 2 * gap) * dict.length]);
 
+	// draw the bars themselves
 	chart.selectAll("rect")
-			.data(d3.values(dict))
-		.enter().append("rect")
-			.attr("y", y)
-			.attr("width", x)
-			.attr("height", y.rangeBand());
+		.data(dict.map(function(d) { return d.count; }))
+	  .enter().append("rect")
+	  	.attr("x", left_width)		// start the bars at the value for left_width
+	  	.attr("y", function(d, i) { return i * y.rangeBand(); })		// ensures that arrays with duplicate values will be drawn
+	  	.attr("width", x)
+	  	.attr("height", y.rangeBand());
 
-	chart.selectAll("text")
-			.data(d3.values(dict))
-		.enter().append("text")
-			.attr("x", x)
-			.attr("y", function(d) { return y(d) + y.rangeBand() / 2; })
-			.attr("dx", -3) // padding-right
-			.attr("dy", ".35em") // vertical-align: middle
-			.attr("text-anchor", "end") // text-align: right
-			.text(String);
+	// add numbers to the end of each bar
+	chart.selectAll("text.bar-num")
+		.data(dict.map(function(d) {return d.count; }))
+	  .enter().append("text")
+		.attr("x", function(d) { return x(d) + left_width; })
+		.attr("y", function(d, i) { return i * y.rangeBand() + y.rangeBand()/2; })
+		.attr("dx", -5)
+		.attr("dy", ".36em")
+		.attr("text-anchor", "end")
+		.attr("class", "bar-num")
+		.text(String);
 
-	chart.selectAll("line")
-			.data(x.ticks(10))
-		.enter().append("line")
-			.attr("x1", x)
-			.attr("x2", x)
-			.attr("y1", 0)
-			.attr("y2", 20 * count)
-			.style("stroke", "#ccc");
+	// add name labels to the left of chart
+	chart.selectAll("text.name")
+		.data(dict.map(function(d) { return d.role; }))
+	  .enter().append("text")
+		.attr("x", left_width / 2)
+		.attr("y", function(d) { return y(d) + y.rangeBand() / 2; })
+		.attr("dy", ".36em")
+		.attr("text-anchor", "middle")
+		.attr("class", "name")
+		.text(String);
 
-	chart.selectAll(".rule")
-			.data(x.ticks(10))
-		.enter().append("text")
-			.attr("class", "rule")
-			.attr("x", x)
-			.attr("y", 0)
-			.attr("dy", -3)
-			.attr("text-anchor", "middle")
-			.text(String)
-
-	chart.append("line")
-		.attr("y1", 0)
-		.attr("y2", 20 * count)
-		.style("stroke", "#000");
-
-	chart.selectAll(".margin")
-			.data(d3.keys(dict))
-		.enter().append("text")
-			.attr("class", "margin")
-			.attr("x", 120)
-			.attr("y", function(d) { return y(d) + y.rangeBand() / 2; })
-			.attr("dx", 3)	// padding-left
-			.attr("dy", ".35em")	// vertical-align: middle
-			.attr("text-anchor", "end")
-			.text(String);*/
+}
+// div#registration-per-time
