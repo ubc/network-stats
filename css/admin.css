@@ -50,8 +50,12 @@ h3 small{
 }
 
 .chart rect {
-  stroke: white;
+  stroke: none;
   fill: steelblue;
+}
+
+.chart rect:hover {
+  fill: #64707D;
 }
 
 .chart text.bar-num {
@@ -59,5 +63,13 @@ h3 small{
 }
 
 .chart text.name {
+  fill: #000;
+}
+
+.chart line {
+  stroke: #c1c1c1;
+}
+
+.chart .rule {
   fill: #000;
 }

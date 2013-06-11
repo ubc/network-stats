@@ -27,7 +27,7 @@ NetStatsUsers = {
 // div#role-bar-graph
 function role_bar_graph(data) {
 
-var array_choose = ["administrator", "editor", "author", "contributor", "subscriber"];
+	var array_choose = ["administrator", "editor", "author", "contributor", "subscriber"];
 	var input_array = new Array();
 
 	function random_array_value(array) {
@@ -38,54 +38,86 @@ var array_choose = ["administrator", "editor", "author", "contributor", "subscri
 		input_array.push(random_array_value(array_choose));
 	}
 
-	var dict = new Array();
+	input_array.sort();
+	//var dict = new Array();
 	var temp = _.countBy(input_array, function(value) {
 		return value;
-	})
-	
-	_.each(temp, function(value, key) {
-		dict.push({role: key, count: value});
 	});
+	
+	/*_.each(temp, function(value, key) {
+		dict.push({role: key, count: value});
+	});*/
+	
+	var role = _.keys(temp);		// user roles
+	var count = _.values(temp);		// count of users per role
 
+	/* graphing code based on https://gist.github.com/ghiden/3046929 */
 	var bar_height = 20,
-		width = 600,
-		left_width = 100,	// offset for the left of the chart
-		height = bar_height * dict.length;
+		left_width = 100,
+		width = 400,
+		gap = 2,					// gap between the bars
+		height = bar_height * role.length;
 
-	var gap = 2;	// defining a gap for padding between the bars
+	// define the scaling for the x axis
+	var x = d3.scale.linear()
+				.domain([0, d3.max(count)])
+				.range([0, width]);
+
+	// account for values 
+	// (do not use ordinal if you expect data to have duplicate values)
+	var y_rangeband = bar_height + 2 * gap;
+	console.log(y_rangeband);
+	var y = function(i) { return y_rangeband * i; };
 
 	// create chart context here
 	var chart = d3.select("#role-bar-graph").append("svg")
 					.attr("class", "chart")
 					.attr("width", width + left_width + 40)
-					.attr("height", (bar_height + gap * 2) * dict.length + 30)
+					.attr("height", (bar_height + gap * 2) * role.length + 30)
 				  .append("g")
 					.attr("transform", "translate(10, 20)");
 
 	// add scaling for the chart axes
-	var x = d3.scale.linear()
+	/*var x = d3.scale.linear()
 				.domain([0, d3.max(dict, function(d) { return d.count; })])
-				.range([0, width]);
+				.range([0, width]);*/
 
-	var y = d3.scale.ordinal()
-				.domain(dict.map(function(d) { return d.role; }))
-				.rangeBands([0, (bar_height + 2 * gap) * dict.length]);
+	// draw the rules
+	chart.selectAll(".rule")
+		.data(x.ticks(10))
+	  .enter().append("text")
+		.attr("x", function(d) { return x(d) + left_width; })
+		.attr("y", 0)
+		.attr("dy", -6)
+		.attr("text-anchor", "middle")
+		/*.attr("width", x)
+		.attr("height", bar_height)*/
+		.text(String);
+
+	// draw the ticks
+	chart.selectAll("line")
+		.data(x.ticks(10))
+	  .enter().append("line")
+		.attr("x1", function(d) { return x(d) + left_width; })
+		.attr("x2", function(d) { return x(d) + left_width; })
+		.attr("y1", 0)
+		.attr("y2", (bar_height + gap * 2) * role.length);
 
 	// draw the bars themselves
 	chart.selectAll("rect")
-		.data(dict.map(function(d) { return d.count; }))
+		.data(count)
 	  .enter().append("rect")
 	  	.attr("x", left_width)		// start the bars at the value for left_width
-	  	.attr("y", function(d, i) { return i * y.rangeBand(); })		// ensures that arrays with duplicate values will be drawn
+	  	.attr("y", function(d, i) { return y(i) + gap; })		// ensures that arrays with duplicate values will be drawn
 	  	.attr("width", x)
-	  	.attr("height", y.rangeBand());
+	  	.attr("height", bar_height);
 
 	// add numbers to the end of each bar
 	chart.selectAll("text.bar-num")
-		.data(dict.map(function(d) {return d.count; }))
+		.data(count)
 	  .enter().append("text")
 		.attr("x", function(d) { return x(d) + left_width; })
-		.attr("y", function(d, i) { return i * y.rangeBand() + y.rangeBand()/2; })
+		.attr("y", function(d, i) { return y(i) + y_rangeband / 2; })
 		.attr("dx", -5)
 		.attr("dy", ".36em")
 		.attr("text-anchor", "end")
@@ -94,10 +126,10 @@ var array_choose = ["administrator", "editor", "author", "contributor", "subscri
 
 	// add name labels to the left of chart
 	chart.selectAll("text.name")
-		.data(dict.map(function(d) { return d.role; }))
+		.data(role)
 	  .enter().append("text")
 		.attr("x", left_width / 2)
-		.attr("y", function(d) { return y(d) + y.rangeBand() / 2; })
+		.attr("y", function(d, i) { return y(i) + y_rangeband / 2; })
 		.attr("dy", ".36em")
 		.attr("text-anchor", "middle")
 		.attr("class", "name")
