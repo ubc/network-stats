@@ -3,10 +3,15 @@
 $users_data_object = new Network_Stats_Users_Data();
 $url = $users_data_object->get_url();
 
+$users_test = get_users('blog_id=null');
+
+
 ?>
+
 <p>Last updated <em><?php echo $users_data_object->updated_since(); ?></em></p>
 
 <p id="users-total">Total number of users: </p>
+<p id="average-sites-per-user">Average sites per user: </p>
 
 <table id="data-table" class="widefat">
 	<thead>
@@ -48,6 +53,9 @@ $url = $users_data_object->get_url();
 
 <h3>Registration per Time</h3>
 <div id="registration-per-time"></div>
+
+<h3>Sites per User</h3>
+<div id="user-number-sites"></div>
 
 <script type="text/javascript">
 	var network_stats_refresh_data = <?php echo ( empty( $url ) ? 'true': 'false'); ?> 		

@@ -45,7 +45,7 @@ h3 small{
 }
 
 .chart {
-  background: #b0e0f8;
+  background: #eee;
   margin: 5px;
 }
 
@@ -55,7 +55,7 @@ h3 small{
 }
 
 .chart rect:hover {
-  fill: #64707D;
+  fill: #f00;
 }
 
 .chart text.bar-num {

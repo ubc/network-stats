@@ -55,14 +55,17 @@ class Network_Stats_Users_Data extends Network_Stats_Data {
 					// necessary because by default, the function will return an array that needs to be derefenced to grab the values
 				}
 
-				$this->append_to_data( array(
-					'user_id'		=> $user->ID,
-					'name'			=> $user_all_meta['first_name'] . ' ' . $user_all_meta['last_name'],
-					'user_email'	=> $user->user_email,
-					'role'			=> $user->roles,
-					'registered'	=> $user->user_registered,
-					'sites_array'	=> $user_blogs					
-				) );
+				// need to check if user is a super admin, if is super admin, don't add to list
+				//if( !is_super_admin( $user->ID ) ) {
+					$this->append_to_data( array(
+						'user_id'		=> $user->ID,
+						'name'			=> $user_all_meta['first_name'] . ' ' . $user_all_meta['last_name'],
+						'user_email'	=> $user->user_email,
+						'role'			=> $user->roles,
+						'registered'	=> $user->user_registered,
+						'sites_array'	=> $user_blogs					
+					) );
+				//}
 				$i++;
 			}
 
@@ -78,6 +81,25 @@ class Network_Stats_Users_Data extends Network_Stats_Data {
 			// we are done
 			return array( 'next_page' => 'finished', 'data' => $this->data );
 		}
+
+	}
+
+	// need to test this function
+	// source: http://wordpress.org/support/topic/get-a-users-role-by-user-id
+	function tina_mvc_user_has_role( $roles_to_check=array() ) {
+
+  		if( ! $roles_to_check ) return FALSE;
+
+		global $current_user;
+  		get_currentuserinfo();
+ 		$user_id = intval( $current_user->ID );
+
+  		if( ! $user_id ) {
+   			return FALSE;
+  		}
+ 		 $user = new WP_User( $user_id ); // $user->roles
+
+  		return in_array( $roles_to_check, $user->roles, FALSE );
 
 	}
 

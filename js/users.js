@@ -12,8 +12,11 @@ NetStatsUsers = {
 				tbody.append(	'<tr ' + alt + '><td>' + d.user_id + '</td><td>' + d.name + '</td><td>' + d.user_email + '</td><td>role goes here</td><td>' + d.registered + '</td><td>yolo sites</td></tr>');
 			});
 
-			// draw the bar graph
+			// draw the role bar graph
 			role_bar_graph(data);
+
+			// draw the sites per user bar graph
+			user_number_sites(data);
 		});
 	}
 }
@@ -27,26 +30,19 @@ NetStatsUsers = {
 // div#role-bar-graph
 function role_bar_graph(data) {
 
-	var array_choose = ["administrator", "editor", "author", "contributor", "subscriber"];
-	var input_array = new Array();
+	var role_string_array = new Array();
 
-	function random_array_value(array) {
-		return array[Math.floor(Math.random() * (array.length - 1 - 0 + 1) )];
-	}
+	for (var i = data.length - 1; i >= 0; i--) {
+		if(data[i]["role"].length > 0)
+			role_string_array.push(data[i]["role"][0]);
+		else
+			role_string_array.push("other");
+	};
+	role_string_array.sort();
 
-	for (var i =  1000; i > 0; i--) {
-		input_array.push(random_array_value(array_choose));
-	}
-
-	input_array.sort();
-	//var dict = new Array();
-	var temp = _.countBy(input_array, function(value) {
+	var temp = _.countBy(role_string_array, function(value) {
 		return value;
 	});
-	
-	/*_.each(temp, function(value, key) {
-		dict.push({role: key, count: value});
-	});*/
 	
 	var role = _.keys(temp);		// user roles
 	var count = _.values(temp);		// count of users per role
@@ -66,7 +62,6 @@ function role_bar_graph(data) {
 	// account for values 
 	// (do not use ordinal if you expect data to have duplicate values)
 	var y_rangeband = bar_height + 2 * gap;
-	console.log(y_rangeband);
 	var y = function(i) { return y_rangeband * i; };
 
 	// create chart context here
@@ -137,3 +132,110 @@ function role_bar_graph(data) {
 
 }
 // div#registration-per-time
+
+// div#user-number-sites
+function user_number_sites(data) {
+
+	var data_array = new Array();
+
+	function get_id_and_sites(id, site_object) {
+		return {
+			user_id: id,
+			num_site: _.size(site_object)
+		};
+	}
+
+	for (var i = data.length - 1; i >= 0; i--) {
+		data_array.push(get_id_and_sites(
+			data[i].user_id, 
+			data[i].sites_array
+		));
+	};
+
+	/* do user calculations here using the data_array */
+	var max = _.max(data_array, function(info) { return info.num_site; });		// most sites that a user has
+	var min = _.min(data_array, function(info) { return info.num_site; });		// least sites that a user has
+	
+	var user_id_array = _.chain(data_array)
+							.map(function(user) { return user.user_id; })
+							.flatten()
+							.value();		// create array of user ids
+	var num_site_array = _.chain(data_array)
+							.map(function(user) { return user.num_site; })
+							.flatten()
+							.value();		// create array of num sites
+	// the above arrays have indices that correspond to the original array of objects (data_array)
+
+	var user_count = _.countBy(num_site_array, function(count) { return count; });
+
+	var sum = _.chain(num_site_array)
+						.reduce(function(memo, num) { return memo + num; }, 0)
+						.value();		// get the sum of all sites regardless of duplicate sites
+
+	var average = sum / user_id_array.length;
+	average = Math.round(average*Math.pow(10, 3)) / Math.pow(10, 3);	// get precision to 3 decimal places
+
+	console.log(user_id_array);
+	console.log(num_site_array);
+	console.log(user_count);
+	console.log("max: " + max.num_site);
+	console.log("min: " + min.num_site);
+	console.log("average: " + average);
+	console.log(Math.max.apply(Math, _.values(user_count)));
+
+
+	// set the variables here
+	var bar_width 		= 20,
+		bar_height 		= 80,
+		bottom_height 	= 50,
+		chart_width		= bar_width * _.size(user_count) + 100,
+		chart_height	= bar_height + bottom_height + 50,
+		gap = 2;
+
+	var x = d3.scale.linear()
+				.domain([0,1])
+				.range([0, bar_width]);
+
+	var y = d3.scale.linear()
+				.domain([0, Math.max.apply(Math, _.values(user_count))])
+				.rangeRound([0, bar_height]);
+
+	// create chart context here
+	var chart = d3.select("#user-number-sites").append("svg")
+					.attr("class", "chart")
+					.attr("width", bar_width * _.size(user_count) - 1)
+					.attr("height", bar_height);
+
+	// add the initial bars
+	chart.selectAll("rect")
+		.data(_.values(user_count))
+	  .enter().append("rect")
+		.attr("x", function(d, i) { return x(i) - 0.5; })
+		.attr("y", function(d) { return bar_height - y(d) - 0.5; })
+		.attr("width", bar_width)
+		.attr("height", function(d) { return y(d); });
+
+	// add y-axis to the bars
+	chart.append("line")
+		.attr("x1", 0)
+		.attr("x2", bar_width * _.size(user_count))
+		.attr("y1", bar_height - 0.5)
+		.attr("y2", bar_height - 0.5)
+		.style("stroke", "#000");
+}
+
+// testing functions
+function random_roles_generator() {
+	var array_choose = ["administrator", "editor", "author", "contributor", "subscriber"];
+	var input_array = new Array();
+
+	function random_array_value(array) {
+		return array[Math.floor(Math.random() * (array.length - 1 - 0 + 1) )];
+	}
+
+	for (var i =  1000; i > 0; i--) {
+		input_array.push(random_array_value(array_choose));
+	}
+
+	input_array.sort();
+}
