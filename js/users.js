@@ -51,7 +51,7 @@ function role_bar_graph(data) {
 	var bar_height = 20,
 		left_width = 100,
 		width = 400,
-		gap = 2,					// gap between the bars
+		gap = 4,					// gap between the bars
 		height = bar_height * role.length;
 
 	// define the scaling for the x axis
@@ -130,6 +130,22 @@ function role_bar_graph(data) {
 		.attr("class", "name")
 		.text(String);
 
+	// add a y-axis
+	chart.append("line")
+		.attr("x1", left_width - 0.5)
+		.attr("x2", left_width - 0.5)
+		.attr("y1", 0)
+		.attr("y2", (bar_height + gap * 2) * role.length)
+		.style("stroke", "#000");
+
+	// add an x-axis
+	chart.append("line")
+		.attr("x1", left_width)
+		.attr("x2", left_width + width)
+		.attr("y1", (bar_height + gap * 2) * role.length - 0.5)
+		.attr("y2", (bar_height + gap * 2) * role.length - 0.5)
+		.style("stroke", "#000");
+
 }
 // div#registration-per-time
 
@@ -188,9 +204,9 @@ function user_number_sites(data) {
 	var bar_width 		= 20,
 		bar_height 		= 80,
 		bottom_height 	= 50,
-		chart_width		= bar_width * _.size(user_count) + 100,
-		chart_height	= bar_height + bottom_height + 50,
-		gap = 2;
+		chart_width		= 400,
+		chart_height	= bar_height + bottom_height,
+		gap 			= 4;
 
 	var x = d3.scale.linear()
 				.domain([0,1])
@@ -203,8 +219,10 @@ function user_number_sites(data) {
 	// create chart context here
 	var chart = d3.select("#user-number-sites").append("svg")
 					.attr("class", "chart")
-					.attr("width", bar_width * _.size(user_count) - 1)
-					.attr("height", bar_height);
+					.attr("width", (bar_width + gap * 2) * _.size(user_count) + 30)
+					.attr("height", chart_height)
+				  .append("g")
+					.attr("transform", "translate(20, 10)");
 
 	// add the initial bars
 	chart.selectAll("rect")
@@ -215,11 +233,29 @@ function user_number_sites(data) {
 		.attr("width", bar_width)
 		.attr("height", function(d) { return y(d); });
 
-	// add y-axis to the bars
+	// add name labels to the chart
+	chart.selectAll(".rule")
+		.data(_.keys(user_count))
+	  .enter().append("text")
+		.attr("x", function(d, i) { return x(i) + 10 - 0.5; })
+		.attr("y", bottom_height * 2)
+		.attr("dy", -6)
+		.attr("text-anchor", "middle")
+		.text(String);
+
+	// add x-axis to the bars
 	chart.append("line")
 		.attr("x1", 0)
 		.attr("x2", bar_width * _.size(user_count))
 		.attr("y1", bar_height - 0.5)
+		.attr("y2", bar_height - 0.5)
+		.style("stroke", "#000");
+
+	// add y-axis to the bars
+	chart.append("line")
+		.attr("x1", 0 - 0.5)
+		.attr("x2", 0 - 0.5)
+		.attr("y1", 0)
 		.attr("y2", bar_height - 0.5)
 		.style("stroke", "#000");
 }
