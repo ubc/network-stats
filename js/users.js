@@ -202,27 +202,50 @@ function user_number_sites(data) {
 
 	// set the variables here
 	var bar_width 		= 20,
-		bar_height 		= 80,
+		bar_height 		= 200,
 		bottom_height 	= 50,
-		chart_width		= 400,
+		chart_width		= bar_width * _.size(user_count),
 		chart_height	= bar_height + bottom_height,
 		gap 			= 4;
 
-	var x = d3.scale.linear()
-				.domain([0,1])
-				.range([0, bar_width]);
+	// set the x and y scales 
+	var x_rangeband = bar_width + 2 * gap;
+	var x = function(i) { return x_rangeband * i; };
 
 	var y = d3.scale.linear()
-				.domain([0, Math.max.apply(Math, _.values(user_count))])
-				.rangeRound([0, bar_height]);
+				.domain([0, d3.max(_.values(user_count))])
+				.range([0, bar_height]);
 
 	// create chart context here
 	var chart = d3.select("#user-number-sites").append("svg")
 					.attr("class", "chart")
 					.attr("width", (bar_width + gap * 2) * _.size(user_count) + 30)
-					.attr("height", chart_height)
+					.attr("height", bar_height + bottom_height + 40)
 				  .append("g")
-					.attr("transform", "translate(20, 10)");
+					.attr("transform", "translate(20, 20)");
+
+	var rule_scale = d3.scale.linear()
+						.domain([0, d3.max(_.values(user_count))])
+						.range([bar_height, 0]);
+
+	//draw the rules
+	chart.selectAll(".rule")
+		.data(rule_scale.ticks(10))
+	  .enter().append("text")
+	  .attr("x", 0)
+	  .attr("y", function(d) { return rule_scale(d); })
+	  .attr("dx", -6)
+	  .attr("text-anchor", "middle")
+	  .text(String);
+
+	 // draw the ticks
+	chart.selectAll("line")
+		.data(y.ticks(10))
+	  .enter().append("line")
+		.attr("x1", 0)
+		.attr("x2", (bar_width + gap * 2) * _.size(user_count))
+		.attr("y1", function(d) { return y(d); })
+		.attr("y2", function(d) { return y(d); });
 
 	// add the initial bars
 	chart.selectAll("rect")
@@ -234,19 +257,30 @@ function user_number_sites(data) {
 		.attr("height", function(d) { return y(d); });
 
 	// add name labels to the chart
-	chart.selectAll(".rule")
+	chart.selectAll("text.name")
 		.data(_.keys(user_count))
 	  .enter().append("text")
 		.attr("x", function(d, i) { return x(i) + 10 - 0.5; })
-		.attr("y", bottom_height * 2)
+		.attr("y", chart_height - 20)
 		.attr("dy", -6)
 		.attr("text-anchor", "middle")
+		.text(String);
+
+	// add numbers to the end of the bars
+	chart.selectAll("text.bar-num")
+		.data(_.values(user_count))
+	  .enter().append("text")
+	  	.attr("x", function(d, i) { return x(i) + 10 - 0.5;})
+		.attr("y", function(d) { console.log(bar_height - y(d)); return bar_height - y(d) - 0.5; })
+		.attr("dy", 18)
+		.attr("text-anchor", "middle")
+		.attr("class", "bar-num")
 		.text(String);
 
 	// add x-axis to the bars
 	chart.append("line")
 		.attr("x1", 0)
-		.attr("x2", bar_width * _.size(user_count))
+		.attr("x2", (bar_width + gap * 2) * _.size(user_count))
 		.attr("y1", bar_height - 0.5)
 		.attr("y2", bar_height - 0.5)
 		.style("stroke", "#000");
@@ -258,6 +292,14 @@ function user_number_sites(data) {
 		.attr("y1", 0)
 		.attr("y2", bar_height - 0.5)
 		.style("stroke", "#000");
+
+	// add a legend to the y-axis
+	chart.append("text")
+		.attr("x", ((bar_width + gap * 2) * _.size(user_count)) / 2)
+		.attr("y", bar_height + (bottom_height))
+		.attr("dy", -6)
+		.attr("text-anchor", "middle")
+		.text("Number of Sites");
 }
 
 // testing functions
