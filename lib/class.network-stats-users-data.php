@@ -86,7 +86,7 @@ class Network_Stats_Users_Data extends Network_Stats_Data {
 
 	// need to test this function
 	// source: http://wordpress.org/support/topic/get-a-users-role-by-user-id
-	function tina_mvc_user_has_role( $roles_to_check=array() ) {
+	/*function tina_mvc_user_has_role( $roles_to_check=array() ) {
 
   		if( ! $roles_to_check ) return FALSE;
 
@@ -101,6 +101,6 @@ class Network_Stats_Users_Data extends Network_Stats_Data {
 
   		return in_array( $roles_to_check, $user->roles, FALSE );
 
-	}
+	}*/
 
 }

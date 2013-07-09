@@ -15,6 +15,9 @@ NetStatsUsers = {
 			// draw the role bar graph
 			role_bar_graph(data);
 
+			// draw the registration per time graphs
+			registration_per_time(data);
+
 			// draw the sites per user bar graph
 			user_number_sites(data);
 		});
@@ -24,7 +27,9 @@ NetStatsUsers = {
 // div#user-activity
 
 // div#user-pie-chart
+function user_pie_chart(data) {
 
+}
 // div#faculties-bar-graph
 
 // div#role-bar-graph
@@ -147,7 +152,70 @@ function role_bar_graph(data) {
 		.style("stroke", "#000");
 
 }
+
 // div#registration-per-time
+function registration_per_time(data) {
+
+	// set the dimensions
+	var margin = {top: 20, right: 20, bottom: 30, left: 50},
+		width = 960 - margin.left - margin.right,
+		height = 500 - margin.top - margin.bottom;
+
+	// set the date stuff into 1970-01-01 00:00:00
+	var parse_date = d3.time.format("%Y-%m-%d %H:%M:%S").parse;
+
+	var x = d3.time.scale()
+		.range([0, width]);
+
+	var y = d3.scale.linear()
+		.range([height, 0]);
+
+	var x_axis = d3.svg.axis()
+		.scale(x)
+		.orient("bottom");
+
+	var y_axis = d3.svg.axis()
+		.scale(y)
+		.orient("left");
+
+	var line = d3.svg.line()
+		.x(function(d) { return x(d.registered); })
+		.y(function(d) { return y(d.user_id); });
+
+	var svg = d3.select("#registration-per-time").append("svg")
+		.attr("width", width + margin.left + margin.right)
+		.attr("height", height + margin.top + margin.bottom)
+	  .append("g")
+		.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+	data.forEach( function(d) {
+		d.registered = parse_date(d.registered);
+		d.user_id = +d.user_id;
+	});
+
+	x.domain(d3.extent(data, function(d) { return d.registered; }));
+	y.domain(d3.extent(data, function(d) { return d.user_id; }));
+
+	svg.append("g")
+		.attr("class", "x axis")
+		.attr("transform", "translate(0," + height + ")")
+		.call(x_axis);
+
+	svg.append("g")
+		.attr("class", "y axis")
+		.call(y_axis)
+	  .append("text")
+		.attr("transform", "rotate(-90)")
+		.attr("y", 6)
+		.attr("dy", ".71em")
+		.style("text-anchor", "end")
+		.text("Num Users");
+
+	svg.append("path")
+		.datum(data)
+		.attr("class", "line")
+		.attr("d", line);
+}
 
 // div#user-number-sites
 function user_number_sites(data) {
@@ -191,13 +259,13 @@ function user_number_sites(data) {
 	var average = sum / user_id_array.length;
 	average = Math.round(average*Math.pow(10, 3)) / Math.pow(10, 3);	// get precision to 3 decimal places
 
-	console.log(user_id_array);
+	/*console.log(user_id_array);
 	console.log(num_site_array);
 	console.log(user_count);
 	console.log("max: " + max.num_site);
 	console.log("min: " + min.num_site);
 	console.log("average: " + average);
-	console.log(Math.max.apply(Math, _.values(user_count)));
+	console.log(Math.max.apply(Math, _.values(user_count)));*/
 
 
 	// set the variables here
