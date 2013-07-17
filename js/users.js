@@ -2,7 +2,8 @@ NetStatsUsers = {
 	draw: function() {
 
 		d3.json(json_url, function(error, data) {
-			jQuery('#users-total').append('<strong>'+data.length+'</strong>');
+			jQuery('#users-total').append('<strong>'+_.keys(data).length+'</strong>');
+			console.log(data);
 			var tbody = jQuery('#data-table tbody');
 			var i = 0;
 			data.forEach(function(d) {
@@ -15,8 +16,8 @@ NetStatsUsers = {
 			// draw the role bar graph
 			role_bar_graph(data);
 
-			// draw the registration per time graphs
-			registration_per_time(data);
+			// draw the users per time graphs
+			users_per_time(data);
 
 			// draw the sites per user bar graph
 			user_number_sites(data);
@@ -49,41 +50,83 @@ function role_bar_graph(data) {
 		return value;
 	});
 	
+	console.log(temp);
 	var role = _.keys(temp);		// user roles
 	var count = _.values(temp);		// count of users per role
 
 	/* graphing code based on https://gist.github.com/ghiden/3046929 */
-	var bar_height = 20,
+	/*var bar_height = 20,
 		left_width = 100,
-		width = 400,
+		//width = 400,
 		gap = 4,					// gap between the bars
-		height = bar_height * role.length;
+		height = bar_height * role.length; */
+
+	var margin = {top: 20, right: 20, bottom: 30, left: 75},
+		width = 960 - margin.left - margin.right,
+		bar_height = 20,
+		height = 400 - margin.top - margin.bottom;
 
 	// define the scaling for the x axis
 	var x = d3.scale.linear()
-				.domain([0, d3.max(count)])
-				.range([0, width]);
+		.range([0, width]);
 
 	// account for values 
 	// (do not use ordinal if you expect data to have duplicate values)
-	var y_rangeband = bar_height + 2 * gap;
-	var y = function(i) { return y_rangeband * i; };
+	//var y_rangeband = bar_height + 2 * bar_gap;
+	//var y = function(i) { return y_rangeband * i; };
+	var y = d3.scale.ordinal()
+		.rangeRoundBands([0, height], .625);
 
-	// create chart context here
-	var chart = d3.select("#role-bar-graph").append("svg")
-					.attr("class", "chart")
-					.attr("width", width + left_width + 40)
-					.attr("height", (bar_height + gap * 2) * role.length + 30)
-				  .append("g")
-					.attr("transform", "translate(10, 20)");
+	/*var y_rangeband = bar_height + 2 * bar_gap;
+	var y = function(i) { return y_rangeband * i; };*/
 
-	// add scaling for the chart axes
-	/*var x = d3.scale.linear()
-				.domain([0, d3.max(dict, function(d) { return d.count; })])
-				.range([0, width]);*/
+	var x_axis = d3.svg.axis()
+		.scale(x)
+		.orient("bottom");
+
+	var y_axis = d3.svg.axis()
+		.scale(y)
+		.orient("left");
+
+	var svg = d3.select("#role-bar-graph").append("svg")
+		.attr("width", width + margin.left + margin.right)
+		.attr("height", height + margin.top + margin.bottom)
+	  .append("g")
+		.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+	x.domain([0, d3.max(count)]);
+	y.domain(role);
+
+	svg.append("g")
+		.attr("class", "x axis")
+		.attr("transform", "translate(0," + height + ")")
+		.call(x_axis)
+	  .append("text")
+		.attr("x", width)
+		.attr("dy", "-0.71em")
+		.style("text-anchor", "end")
+		.text("Number of Users");
+
+	svg.append("g")
+		.attr("class", "y axis")
+		.call(y_axis)
+	  .append("text")
+		.attr("transform", "rotate(-90)")
+		.attr("y", 6)
+		.attr("dy", ".71em")
+		.style("text-anchor", "end")
+		.text("Roles");
+
+	svg.selectAll("rect")
+		.data(count)
+	  .enter().append("rect")
+		.attr("x", 0)
+		.attr("width", x)
+		.attr("y", function(d, i){ return y(i); })
+		.attr("height", bar_height);
 
 	// draw the rules
-	chart.selectAll(".rule")
+	/*chart.selectAll(".rule")
 		.data(x.ticks(10))
 	  .enter().append("text")
 		.attr("x", function(d) { return x(d) + left_width; })
@@ -92,7 +135,7 @@ function role_bar_graph(data) {
 		.attr("text-anchor", "middle")
 		/*.attr("width", x)
 		.attr("height", bar_height)*/
-		.text(String);
+		/*.text(String);
 
 	// draw the ticks
 	chart.selectAll("line")
@@ -101,60 +144,12 @@ function role_bar_graph(data) {
 		.attr("x1", function(d) { return x(d) + left_width; })
 		.attr("x2", function(d) { return x(d) + left_width; })
 		.attr("y1", 0)
-		.attr("y2", (bar_height + gap * 2) * role.length);
-
-	// draw the bars themselves
-	chart.selectAll("rect")
-		.data(count)
-	  .enter().append("rect")
-	  	.attr("x", left_width)		// start the bars at the value for left_width
-	  	.attr("y", function(d, i) { return y(i) + gap; })		// ensures that arrays with duplicate values will be drawn
-	  	.attr("width", x)
-	  	.attr("height", bar_height);
-
-	// add numbers to the end of each bar
-	chart.selectAll("text.bar-num")
-		.data(count)
-	  .enter().append("text")
-		.attr("x", function(d) { return x(d) + left_width; })
-		.attr("y", function(d, i) { return y(i) + y_rangeband / 2; })
-		.attr("dx", -5)
-		.attr("dy", ".36em")
-		.attr("text-anchor", "end")
-		.attr("class", "bar-num")
-		.text(String);
-
-	// add name labels to the left of chart
-	chart.selectAll("text.name")
-		.data(role)
-	  .enter().append("text")
-		.attr("x", left_width / 2)
-		.attr("y", function(d, i) { return y(i) + y_rangeband / 2; })
-		.attr("dy", ".36em")
-		.attr("text-anchor", "middle")
-		.attr("class", "name")
-		.text(String);
-
-	// add a y-axis
-	chart.append("line")
-		.attr("x1", left_width - 0.5)
-		.attr("x2", left_width - 0.5)
-		.attr("y1", 0)
-		.attr("y2", (bar_height + gap * 2) * role.length)
-		.style("stroke", "#000");
-
-	// add an x-axis
-	chart.append("line")
-		.attr("x1", left_width)
-		.attr("x2", left_width + width)
-		.attr("y1", (bar_height + gap * 2) * role.length - 0.5)
-		.attr("y2", (bar_height + gap * 2) * role.length - 0.5)
-		.style("stroke", "#000");
+		.attr("y2", (bar_height + gap * 2) * role.length);*/
 
 }
 
-// div#registration-per-time
-function registration_per_time(data) {
+// div#users-per-time
+function users_per_time(data) {
 
 	// set the dimensions
 	var margin = {top: 20, right: 20, bottom: 30, left: 50},
@@ -182,7 +177,7 @@ function registration_per_time(data) {
 		.x(function(d) { return x(d.registered); })
 		.y(function(d) { return y(d.user_id); });
 
-	var svg = d3.select("#registration-per-time").append("svg")
+	var svg = d3.select("#users-per-time").append("svg")
 		.attr("width", width + margin.left + margin.right)
 		.attr("height", height + margin.top + margin.bottom)
 	  .append("g")
