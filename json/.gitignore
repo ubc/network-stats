@@ -1,0 +1,4 @@
+# This .gitignore is just to have a json directory in it
+# Will ignore all files inside the directory other than this .gitignore
+*
+!.gitignore
