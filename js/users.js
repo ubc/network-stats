@@ -54,13 +54,6 @@ function role_bar_graph(data) {
 	var role = _.keys(temp);		// user roles
 	var count = _.values(temp);		// count of users per role
 
-	/* graphing code based on https://gist.github.com/ghiden/3046929 */
-	/*var bar_height = 20,
-		left_width = 100,
-		//width = 400,
-		gap = 4,					// gap between the bars
-		height = bar_height * role.length; */
-
 	var margin = {top: 20, right: 20, bottom: 30, left: 75},
 		width = 960 - margin.left - margin.right,
 		bar_height = 20,
@@ -70,15 +63,8 @@ function role_bar_graph(data) {
 	var x = d3.scale.linear()
 		.range([0, width]);
 
-	// account for values 
-	// (do not use ordinal if you expect data to have duplicate values)
-	//var y_rangeband = bar_height + 2 * bar_gap;
-	//var y = function(i) { return y_rangeband * i; };
 	var y = d3.scale.ordinal()
 		.rangeRoundBands([0, height], .625);
-
-	/*var y_rangeband = bar_height + 2 * bar_gap;
-	var y = function(i) { return y_rangeband * i; };*/
 
 	var x_axis = d3.svg.axis()
 		.scale(x)
@@ -125,81 +111,202 @@ function role_bar_graph(data) {
 		.attr("y", function(d, i){ return y(i); })
 		.attr("height", bar_height);
 
-	// draw the rules
-	/*chart.selectAll(".rule")
-		.data(x.ticks(10))
-	  .enter().append("text")
-		.attr("x", function(d) { return x(d) + left_width; })
-		.attr("y", 0)
-		.attr("dy", -6)
-		.attr("text-anchor", "middle")
-		/*.attr("width", x)
-		.attr("height", bar_height)*/
-		/*.text(String);
-
-	// draw the ticks
-	chart.selectAll("line")
-		.data(x.ticks(10))
-	  .enter().append("line")
-		.attr("x1", function(d) { return x(d) + left_width; })
-		.attr("x2", function(d) { return x(d) + left_width; })
-		.attr("y1", 0)
-		.attr("y2", (bar_height + gap * 2) * role.length);*/
-
 }
 
 // div#users-per-time
 function users_per_time(data) {
 
+	var margin = {top: 10, right: 10, bottom: 100, left: 40},
+	    margin2 = {top: 430, right: 10, bottom: 20, left: 40},
+	    width = 960 - margin.left - margin.right,
+	    height = 500 - margin.top - margin.bottom,
+	    height2 = 500 - margin2.top - margin2.bottom;
+
+	var parseDate = d3.time.format("%Y-%m-%d %H:%M:%S").parse;
+
+	var x = d3.time.scale().range([0, width]),
+	    x2 = d3.time.scale().range([0, width]),
+	    y = d3.scale.linear().range([height, 0]),
+	    y2 = d3.scale.linear().range([height2, 0]);
+
+	var xAxis = d3.svg.axis().scale(x).orient("bottom"),
+	    xAxis2 = d3.svg.axis().scale(x2).orient("bottom"),
+	    yAxis = d3.svg.axis().scale(y).orient("left");
+
+	var brush = d3.svg.brush()
+	    .x(x2)
+	    .on("brush", brushed);
+
+	var area = d3.svg.area()
+	    .interpolate("step-before")
+	    .x(function(d) { return x(d.registered); })
+	    .y0(height)
+	    .y1(function(d) { return y(d.user_id); });
+
+	var area2 = d3.svg.area()
+	    .interpolate("step-before")
+	    .x(function(d) { return x2(d.registered); })
+	    .y0(height2)
+	    .y1(function(d) { return y2(d.user_id); });
+
+	var svg = d3.select("#users-per-time").append("svg")
+	    .attr("width", width + margin.left + margin.right)
+	    .attr("height", height + margin.top + margin.bottom);
+
+	svg.append("defs").append("clipPath")
+	    .attr("id", "clip")
+	  .append("rect")
+	    .attr("width", width)
+	    .attr("height", height);
+
+	var focus = svg.append("g")
+	    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+	var context = svg.append("g")
+	    .attr("transform", "translate(" + margin2.left + "," + margin2.top + ")");
+
+	  data.forEach(function(d) {
+	    d.registered = parseDate(d.registered);
+	    d.user_id = +d.user_id;
+	  });
+
+	  x.domain(d3.extent(data.map(function(d) { return d.registered; })));
+	  y.domain([0, d3.max(data.map(function(d) { return d.user_id; }))]);
+	  x2.domain(x.domain());
+	  y2.domain(y.domain());
+
+	  focus.append("path")
+	      .datum(data)
+	      .attr("clip-path", "url(#clip)")
+	      .attr("d", area);
+
+	  focus.append("g")
+	      .attr("class", "x axis")
+	      .attr("transform", "translate(0," + height + ")")
+	      .call(xAxis);
+
+	  focus.append("g")
+	      .attr("class", "y axis")
+	      .call(yAxis);
+
+	  context.append("path")
+	      .datum(data)
+	      .attr("d", area2);
+
+	  context.append("g")
+	      .attr("class", "x axis")
+	      .attr("transform", "translate(0," + height2 + ")")
+	      .call(xAxis2);
+
+	  context.append("g")
+	      .attr("class", "x brush")
+	      .call(brush)
+	    .selectAll("rect")
+	      .attr("y", -6)
+	      .attr("height", height2 + 7);
+
+	function brushed() {
+	  x.domain(brush.empty() ? x2.domain() : brush.extent());
+	  focus.select("path").attr("d", area);
+	  focus.select(".x.axis").call(xAxis);
+	}
+
 	// set the dimensions
-	var margin = {top: 20, right: 20, bottom: 30, left: 50},
+	/*var margin = {top: 10, right: 10, bottom: 100, left: 40},
+		margin2 = {top: 430, right: 10, bottom: 20, left: 40},
 		width = 960 - margin.left - margin.right,
-		height = 500 - margin.top - margin.bottom;
+		height = 500 - margin.top - margin.bottom,
+		height2 = 500 - margin2.top - margin2.bottom;
 
 	// set the date stuff into 1970-01-01 00:00:00
 	var parse_date = d3.time.format("%Y-%m-%d %H:%M:%S").parse;
 
-	var x = d3.time.scale()
-		.range([0, width]);
+	var x = d3.time.scale().range([0, width]),
+		x2 = d3.time.scale().range([0, width]),
+		y = d3.scale.linear().range([height, 0]),
+		y2 = d3.scale.linear().range([height2, 0]);
 
-	var y = d3.scale.linear()
-		.range([height, 0]);
+	var x_axis = d3.svg.axis().scale(x).orient("bottom"),
+		x_axis2 = d3.svg.axis().scale(x2).orient("bottom"),
+		y_axis = d3.svg.axis().scale(y).orient("left");
 
-	var x_axis = d3.svg.axis()
-		.scale(x)
-		.orient("bottom");
+	var brush = d3.svg.brush()
+		.x(x2)
+		.on("brush", brushed);
 
-	var y_axis = d3.svg.axis()
-		.scale(y)
-		.orient("left");
-
-	var line = d3.svg.line()
+	var area = d3.svg.area()
+		.interpolate("monotone")
 		.x(function(d) { return x(d.registered); })
-		.y(function(d) { return y(d.user_id); });
+		.y0(height)
+		.y1(function(d) { return y(d.user_id); });
 
-	var svg = d3.select("#users-per-time").append("svg")
+	var area2 = d3.svg.area()
+		.interpolate("monotone")
+		.x(function(d) { return x2(d.registered); })
+		.y0(height)
+		.y1(function(d) { return y2(d.user_id); });
+
+	/*var line = d3.svg.line()
+		.x(function(d) { return x(d.registered); })
+		.y(function(d) { return y(d.user_id); });*/
+
+	/*var svg = d3.select("#users-per-time").append("svg")
 		.attr("width", width + margin.left + margin.right)
 		.attr("height", height + margin.top + margin.bottom)
-	  .append("g")
+
+	svg.append("defs").append("clipPath")
+		.attr("id", "clip")
+	  .append("rect")
+		.attr("width", width)
+		.attr("height", height);
+
+	var focus = svg.append("g")
 		.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-	data.forEach( function(d) {
+	var context = svg.append("g")
+		.attr("transform", "translate(" + margin2.left + "," + margin2.top + ")");
+
+	data.forEach(function(d) {
 		d.registered = parse_date(d.registered);
 		d.user_id = +d.user_id;
 	});
 
-	x.domain(d3.extent(data, function(d) { return d.registered; }));
-	y.domain(d3.extent(data, function(d) { return d.user_id; }));
+	x.domain(d3.extent(data.map(function(d) { return d.registered; })));
+	y.domain([0, d3.max(data.map(function(d) { return d.user_id; }))]);
+	x2.domain(x.domain());
+	y2.domain(y.domain());
 
-	svg.append("g")
+	focus.append("path")
+		.datum(data)
+		.attr("clip-path", "url(#clip)")
+		.attr("d", area);
+
+	focus.append("g")
 		.attr("class", "x axis")
 		.attr("transform", "translate(0," + height + ")")
 		.call(x_axis);
 
 	svg.append("g")
 		.attr("class", "y axis")
-		.call(y_axis)
-	  .append("text")
+		.call(y_axis);
+
+	context.append("path")
+		.datum(data)
+		.attr("d", area2);
+
+	context.append("g")
+		.attr("class", "x axis")
+		.attr("transform", "translate(0," + height2 + ")")
+		.call(x_axis2);
+
+	context.append("g")
+		.attr("class", "y axis")
+		.call(brush)
+	  .selectAll("rect")
+		.attr("y", -6)
+		.attr("height", height2 + 7);
+
+	  /*.append("text")
 		.attr("transform", "rotate(-90)")
 		.attr("y", 6)
 		.attr("dy", ".71em")
@@ -209,7 +316,13 @@ function users_per_time(data) {
 	svg.append("path")
 		.datum(data)
 		.attr("class", "line")
-		.attr("d", line);
+		.attr("d", line);*/
+
+	/*function brushed() {
+		x.domain(brush.empty() ? x2.domain() : brush.extent());
+		focus.select("path").attr("d", area);
+		focus.select(".x.axis").call(x_axis);
+	}*/
 }
 
 // div#user-number-sites
@@ -364,6 +477,7 @@ function user_number_sites(data) {
 		.attr("text-anchor", "middle")
 		.text("Number of Sites");
 }
+
 
 // testing functions
 function random_roles_generator() {

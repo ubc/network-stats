@@ -13,7 +13,7 @@ $users_test = get_users('blog_id=null');
 <p id="users-total">Total number of users: </p>
 <p id="average-sites-per-user">Average sites per user: </p>
 
-<!--<table id="data-table" class="widefat">
+<table id="data-table" class="widefat">
 	<thead>
 		<tr>
 			<th>User ID</th>
@@ -36,7 +36,7 @@ $users_test = get_users('blog_id=null');
 			<th>Site(s)</th>
 		</tr>
 	</tfoot>
-</table>-->
+</table>
 
 <h3>Activity</h3>
 <div id="user-activity"></div>
